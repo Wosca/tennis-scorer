@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
   return (
-    <View className="flex justify-center items-center">
+    <View className="flex justify-center items-center h-full">
       <TouchableOpacity
         onPress={() => {
           router.push("/match");
