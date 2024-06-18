@@ -9,6 +9,15 @@ import {
 import React from "react";
 import Svg, { Path } from "react-native-svg";
 import Modal from "react-native-modal";
+import PointButton from "@/components/PointButton";
+import {
+  TennisMatch,
+  Player,
+  ServeWinReasons,
+  ServeLoseReasons,
+  ReceiveWinReasons,
+  ReceiveLoseReasons,
+} from "@/components/GameLogic";
 
 interface MatchParams {
   player1Name: string;
@@ -21,10 +30,19 @@ interface MatchParams {
   serving: number;
   lateTieBreak: string;
 }
+interface ModalTypeInter {
+  type: string;
+  Player: Player;
+}
+
+import ModalPoint from "@/components/PointModal";
 
 export default function ItemDetail() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalType, setModalType] = useState("");
+  const [modalType, setModalType] = useState<ModalTypeInter>({
+    type: "",
+    Player: "Player1",
+  });
   const item = useLocalSearchParams();
   if (!item) {
     return null;
@@ -49,8 +67,8 @@ export default function ItemDetail() {
   const [formattedScore, setFormattedScore] = useState(
     match.getFormattedScore()
   );
-  const handleOpenModal = (type: React.SetStateAction<string>) => {
-    setModalType(type);
+  const handleOpenModal = (type: string, player: Player) => {
+    setModalType({ type: type, Player: player });
     setModalVisible(true);
   };
   const [serving, setServing] = useState(Number(options.serving));
@@ -95,7 +113,7 @@ export default function ItemDetail() {
           : formattedScore.gameScore}
       </Text>
       <View className="w-screen flex flex-row justify-between">
-        <View className="items-center w-1/2">
+        <View className="items-center w-1/2 gap-2">
           <View className="flex flex-row items-center gap-2">
             <Text
               className={`text-2xl font-bold ${
@@ -109,63 +127,34 @@ export default function ItemDetail() {
             {serving === 1 && <SvgComponent />}
           </View>
           {serving === 1 && ( // Touchable opacity for ways to lose each point
-            <View className="w-full gap-1">
-              {/* Touchable opacity buttons */}
-              <TouchableOpacity
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-                onPress={() => handlePoint("Player1", ServeWinReasons.Ace)}
-              >
-                <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                  Ace
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleFault("Player1")}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                  {formattedScore.faultCount.Player1 > 0
+            <View className="w-full gap-2">
+              {/* Touchable opacity PointButtons */}
+              <PointButton
+                handlePoint={() => handlePoint("Player1", ServeWinReasons.Ace)}
+                name="Ace"
+              />
+              <PointButton
+                handlePoint={() => handleFault("Player1")}
+                name={
+                  formattedScore.faultCount.Player1 > 0
                     ? "Double Fault"
-                    : "Fault"}
-                </Text>
-              </TouchableOpacity>
+                    : "Fault"
+                }
+              />
             </View>
           )}
           {serving === 1 && (
             <View className="my-2 w-[55%] h-[1px] bg-white/50"></View>
           )}
-          <TouchableOpacity
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-            }}
-            onPress={() => handlePoint("Player2", ServeLoseReasons.HittingOut)}
-          >
-            <Text className="mt-1 text-white font-medium rounded w-1/2 p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-              Hit Out
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-            }}
-            onPress={() => handlePoint("Player2", ServeLoseReasons.HittingNet)}
-          >
-            <Text className="mt-1 text-white font-medium rounded w-1/2 p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-              Hit Net
-            </Text>
-          </TouchableOpacity>
+
+          <PointButton
+            handlePoint={() => handleOpenModal("Winner", "Player1")}
+            name="Winner"
+          />
+          <PointButton
+            handlePoint={() => handleOpenModal("Error", "Player1")}
+            name="Error"
+          />
         </View>
         <View className="h-full w-[1px] bg-white"></View>
 
@@ -183,46 +172,33 @@ export default function ItemDetail() {
             {serving === 2 && <SvgComponent />}
           </View>
           {serving === 2 && (
-            <View className="w-full gap-1">
-              <TouchableOpacity
-                style={{ width: "100%", display: "flex", alignItems: "center" }}
-                onPress={() => handlePoint("Player2", ServeWinReasons.Ace)}
-              >
-                <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                  Ace
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleFault("Player2")}
-                style={{ width: "100%", display: "flex", alignItems: "center" }}
-              >
-                <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                  {formattedScore.faultCount.Player2 > 0
+            <View className="w-full gap-2">
+              <PointButton
+                handlePoint={() => handlePoint("Player2", ServeWinReasons.Ace)}
+                name="Ace"
+              />
+              <PointButton
+                handlePoint={() => handleFault("Player2")}
+                name={
+                  formattedScore.faultCount.Player2 > 0
                     ? "Double Fault"
-                    : "Fault"}
-                </Text>
-              </TouchableOpacity>
+                    : "Fault"
+                }
+              />
             </View>
           )}
           {serving === 2 && (
             <View className="my-2 w-[55%] h-[1px] bg-white/50"></View>
           )}
-          <TouchableOpacity
-            style={{ width: "100%", display: "flex", alignItems: "center" }}
-            onPress={() => handleOpenModal("Winner")}
-          >
-            <Text className="text-white font-medium rounded w-1/2 p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-              Winner
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ width: "100%", display: "flex", alignItems: "center" }}
-            onPress={() => handleOpenModal("Error")}
-          >
-            <Text className="text-white font-medium rounded w-1/2 p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-              Error
-            </Text>
-          </TouchableOpacity>
+          <PointButton
+            handlePoint={() => handleOpenModal("Winner", "Player2")}
+            name="Winner"
+          />
+
+          <PointButton
+            handlePoint={() => handleOpenModal("Error", "Player2")}
+            name="Error"
+          />
 
           <Modal
             isVisible={modalVisible}
@@ -240,152 +216,12 @@ export default function ItemDetail() {
                   backgroundColor: "#00000080",
                 }}
               >
-                <View
-                  style={{
-                    width: "80%",
-                    backgroundColor: "#12141c",
-                    borderRadius: 10,
-                    padding: 20,
-                  }}
-                >
-                  <Text className="text-white mb-[10px] font-bold text-lg">
-                    {modalType} Type
-                  </Text>
-                  {modalType === "Winner" && (
-                    <View className="gap-2">
-                      <TouchableOpacity
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                        onPress={() => {
-                          handlePoint(
-                            "Player2",
-                            ReceiveWinReasons.ForehandWinner
-                          );
-                          setModalVisible(false);
-                        }}
-                      >
-                        <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                          Forehand Winner
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                        onPress={() => {
-                          handlePoint(
-                            "Player2",
-                            ReceiveWinReasons.BackhandWinner
-                          );
-                          setModalVisible(false);
-                        }}
-                      >
-                        <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                          Backhand Winner
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                        onPress={() => {
-                          handlePoint("Player2", ReceiveWinReasons.Volley);
-                          setModalVisible(false);
-                        }}
-                      >
-                        <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                          Volley
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                        onPress={() => {
-                          handlePoint("Player2", ReceiveWinReasons.Smash);
-                          setModalVisible(false);
-                        }}
-                      >
-                        <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                          Smash
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                        onPress={() => {
-                          handlePoint("Player2", ReceiveWinReasons.Lob);
-                          setModalVisible(false);
-                        }}
-                      >
-                        <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                          Lob
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                        onPress={() => {
-                          handlePoint("Player2", ReceiveWinReasons.Dropshot);
-                          setModalVisible(false);
-                        }}
-                      >
-                        <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                          Dropshot
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                  {modalType === "Error" && (
-                    <>
-                      <TouchableOpacity
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                        onPress={() => {
-                          handlePoint("Player1", ReceiveLoseReasons.HittingOut);
-                          setModalVisible(false);
-                        }}
-                      >
-                        <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                          Hit Out
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={{
-                          width: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                        onPress={() => {
-                          handlePoint("Player1", ReceiveLoseReasons.HittingNet);
-                          setModalVisible(false);
-                        }}
-                      >
-                        <Text className="text-white font-medium w-1/2 rounded p-2 text-center border-[2px] border-[#3b82f6] bg-[#141c29]">
-                          Hit Net
-                        </Text>
-                      </TouchableOpacity>
-                    </>
-                  )}
-                </View>
+                <ModalPoint
+                  setModalVisible={setModalVisible}
+                  modalType={modalType}
+                  match={match}
+                  handlePoint={handlePoint}
+                />
               </View>
             </TouchableWithoutFeedback>
           </Modal>
@@ -393,299 +229,6 @@ export default function ItemDetail() {
       </View>
     </View>
   );
-}
-enum ServeWinReasons {
-  Ace,
-  OpponentHitsOut,
-  OpponentHitsNet,
-  OpponentDoubleFault,
-  OpponentFootFault,
-}
-
-enum ServeLoseReasons {
-  DoubleFault,
-  ServeFault,
-  HittingOut,
-  HittingNet,
-}
-
-enum ReceiveWinReasons {
-  OpponentDoubleFault,
-  OpponentHitsOut,
-  OpponentHitsNet,
-  ServiceWinner,
-  ForehandWinner,
-  BackhandWinner,
-  Volley,
-  Smash,
-  Lob,
-  Dropshot,
-}
-
-enum ReceiveLoseReasons {
-  HittingOut,
-  HittingNet,
-}
-
-type Player = "Player1" | "Player2";
-
-interface PointResult {
-  winner: Player;
-  reason:
-    | ServeWinReasons
-    | ServeLoseReasons
-    | ReceiveWinReasons
-    | ReceiveLoseReasons;
-}
-
-interface MatchSettings {
-  sets: number;
-  gamesPerSet: number;
-  pointsPerGame: number;
-  shortDeuce: boolean;
-  firstServer: number;
-  tieBreakAt: number; // Add tieBreakAt to MatchSettings
-  tieBreakLength: number;
-  tieBreakWinByTwo: boolean;
-}
-
-class TennisMatch {
-  private score: { [key in Player]: number } = {
-    Player1: 0,
-    Player2: 0,
-  };
-
-  private gameScore: { [key in Player]: number } = {
-    Player1: 0,
-    Player2: 0,
-  };
-
-  private setScore: { [key in Player]: number } = {
-    Player1: 0,
-    Player2: 0,
-  };
-
-  private scoreLog: PointResult[] = [];
-  private faultCount: { [key in Player]: number } = {
-    Player1: 0,
-    Player2: 0,
-  };
-
-  private matchSettings: MatchSettings;
-  private currentSet: number = 1;
-  private advantage: Player | null = null;
-  private currentServer: Player;
-  private initialServer: Player;
-  private inTiebreak: boolean = false;
-
-  constructor(settings: MatchSettings) {
-    this.matchSettings = settings;
-    this.initialServer = settings.firstServer === 1 ? "Player1" : "Player2";
-    this.currentServer = this.initialServer;
-  }
-
-  private resetGameScore() {
-    this.gameScore = { Player1: 0, Player2: 0 };
-    this.advantage = null;
-    this.resetFaultCount();
-  }
-
-  private resetSetScore() {
-    this.setScore = { Player1: 0, Player2: 0 };
-  }
-
-  private resetFaultCount() {
-    this.faultCount = { Player1: 0, Player2: 0 };
-  }
-
-  private switchServer() {
-    this.currentServer =
-      this.currentServer === "Player1" ? "Player2" : "Player1";
-  }
-
-  logPoint(
-    winner: Player,
-    reason:
-      | ServeWinReasons
-      | ServeLoseReasons
-      | ReceiveWinReasons
-      | ReceiveLoseReasons
-  ): void {
-    this.scoreLog.push({ winner, reason });
-    this.resetFaultCount();
-
-    if (!this.inTiebreak) {
-      if (!this.matchSettings.shortDeuce && this.isDeuceScenario()) {
-        this.handleDeuce(winner);
-      } else {
-        this.gameScore[winner]++;
-        this.checkGameWin(winner);
-      }
-    } else {
-      this.gameScore[winner]++;
-      this.checkTiebreakWin(winner);
-    }
-  }
-
-  logFault(player: Player): void {
-    this.faultCount[player]++;
-    if (this.faultCount[player] >= 2) {
-      this.logPoint(this.getOpponent(player), ServeLoseReasons.DoubleFault);
-      this.faultCount[player] = 0;
-    }
-  }
-
-  private isDeuceScenario(): boolean {
-    return this.gameScore.Player1 >= 3 && this.gameScore.Player2 >= 3;
-  }
-
-  private handleDeuce(winner: Player) {
-    if (this.isDeuceScenario()) {
-      if (this.advantage === winner) {
-        this.winGame(winner);
-      } else if (this.advantage === null) {
-        this.advantage = winner;
-      } else {
-        this.advantage = null;
-      }
-    }
-  }
-
-  private checkGameWin(winner: Player) {
-    if (
-      this.matchSettings.shortDeuce &&
-      this.gameScore[winner] >= this.matchSettings.pointsPerGame
-    ) {
-      this.winGame(winner);
-    } else if (
-      this.gameScore[winner] >= this.matchSettings.pointsPerGame &&
-      this.gameScore[winner] >= this.gameScore[this.getOpponent(winner)] + 2
-    ) {
-      this.winGame(winner);
-    }
-  }
-
-  private checkTiebreakWin(winner: Player) {
-    if ((this.gameScore.Player1 + this.gameScore.Player2) % 2 !== 0) {
-      this.switchServer();
-    }
-    if (this.gameScore[winner] >= this.matchSettings.tieBreakLength) {
-      if (this.matchSettings.tieBreakWinByTwo) {
-        if (
-          this.gameScore[winner] >=
-          this.gameScore[this.getOpponent(winner)] + 2
-        ) {
-          this.winSet(winner);
-          this.resetGameScore();
-          this.inTiebreak = false;
-        }
-      } else {
-        this.winSet(winner);
-        this.resetGameScore();
-        this.inTiebreak = false;
-      }
-    }
-  }
-
-  private winGame(winner: Player) {
-    this.score[winner]++;
-    this.resetGameScore();
-    this.setScore[winner]++;
-    this.switchServer();
-    this.checkSetWin(winner);
-  }
-
-  private checkSetWin(winner: Player) {
-    if (
-      this.setScore[winner] >= this.matchSettings.gamesPerSet &&
-      this.setScore[winner] >= this.setScore[this.getOpponent(winner)] + 2
-    ) {
-      this.winSet(winner);
-    } else if (
-      this.setScore[winner] === this.matchSettings.tieBreakAt &&
-      this.setScore[this.getOpponent(winner)] === this.matchSettings.tieBreakAt
-    ) {
-      this.startTiebreak();
-    }
-  }
-
-  private startTiebreak() {
-    this.inTiebreak = true;
-    this.resetGameScore();
-  }
-
-  private winSet(winner: Player) {
-    this.currentSet++;
-    if (this.currentSet > this.matchSettings.sets) {
-      this.winMatch(winner);
-    } else {
-      this.resetSetScore();
-    }
-  }
-
-  private winMatch(winner: Player) {
-    console.log(`${winner} wins the match!`);
-  }
-
-  private getOpponent(player: Player): Player {
-    return player === "Player1" ? "Player2" : "Player1";
-  }
-
-  getScore(): {
-    gameScore: { [key in Player]: number };
-    setScore: { [key in Player]: number };
-    matchScore: { [key in Player]: number };
-    advantage: Player | null;
-    currentServer: Player;
-  } {
-    return {
-      gameScore: { ...this.gameScore },
-      setScore: { ...this.setScore },
-      matchScore: { ...this.score },
-      advantage: this.advantage,
-      currentServer: this.currentServer,
-    };
-  }
-
-  getScoreLog(): PointResult[] {
-    return [...this.scoreLog];
-  }
-
-  private formatGameScore(playerScore: number, opponentScore: number): string {
-    const scoreMapping = ["0", "15", "30", "40"];
-    if (playerScore >= 3 && opponentScore >= 3) {
-      if (playerScore === opponentScore) {
-        return "Deuce";
-      } else if (this.advantage === "Player1") {
-        return "Advantage Player1";
-      } else if (this.advantage === "Player2") {
-        return "Advantage Player2";
-      }
-    }
-    return `${scoreMapping[playerScore]}-${scoreMapping[opponentScore]}`;
-  }
-
-  getFormattedScore(): {
-    currentSetScore: { [key in Player]: number };
-    totalSetScore: { [key in Player]: number };
-    gameScore: string;
-    advantage: Player | null;
-    currentServer: Player;
-    faultCount: { [key in Player]: number };
-    inTieBreak: boolean;
-  } {
-    return {
-      currentSetScore: { ...this.setScore },
-      totalSetScore: { ...this.score },
-      gameScore: this.inTiebreak
-        ? `${this.gameScore.Player1}-${this.gameScore.Player2}`
-        : this.formatGameScore(this.gameScore.Player1, this.gameScore.Player2),
-      advantage: this.advantage,
-      currentServer: this.currentServer,
-      faultCount: { ...this.faultCount },
-      inTieBreak: this.inTiebreak,
-    };
-  }
 }
 
 const SvgComponent = () => (

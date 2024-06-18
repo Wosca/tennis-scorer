@@ -17,12 +17,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          headerShown: false,
           title: "Home",
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
+          headerShown: false,
           title: "settings",
         }}
       />

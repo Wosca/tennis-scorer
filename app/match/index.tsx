@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 import GameOptions from "@/components/GameOptions";
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 
 export default function HomeScreen() {
   const [player1Name, setPlayer1Name] = useState("");
@@ -24,6 +24,16 @@ export default function HomeScreen() {
 
   return (
     <ScrollView>
+      <Stack.Screen
+        options={{
+          title: "My home",
+          headerStyle: { backgroundColor: "#0b1424" },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+        }}
+      />
       <View className="bg-[#151718] flex gap-1 w-screen">
         <View className="flex w-full">
           <View
