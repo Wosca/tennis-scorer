@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   TouchableWithoutFeedback,
+  ScrollView,
 } from "react-native";
 import React from "react";
 import Svg, { Path } from "react-native-svg";
@@ -102,7 +103,7 @@ export default function ItemDetail() {
     (options.player2Name ?? "").length < 1 ? "Player 2" : options.player2Name;
 
   return (
-    <View className="flex-1 bg-[#151718]">
+    <ScrollView className="flex-1 bg-[#151718]">
       <Text className="text-white text-2xl font-bold text-center">
         {formattedScore.currentSetScore.Player1} -{" "}
         {formattedScore.currentSetScore.Player2}
@@ -229,14 +230,34 @@ export default function ItemDetail() {
           </Modal>
         </View>
       </View>
-      <View className="w-screen flex flex-row justify-between bg-vista-blue/10 border-jordy-blue/20 py-2 border-2 rounded-md">
-        {match.getScoreLog().map((log, index) => (
-          <Text key={index} className="text-white">
-            {log.reason}
-          </Text>
-        ))}
+      <View className="w-screen flex flex-col justify-between bg-vista-blue/10 border-jordy-blue/20 p-4 border-2 rounded-md">
+        <ScrollView>
+          {match.getScoreLog().map(
+            (log, index) =>
+              // Limit to only show newest 5 logs
+              index > match.getScoreLog().length - 6 && (
+                <View
+                  key={index}
+                  className="flex flex-col justify-between my-2 px-2"
+                >
+                  <Text className="text-white text-lg">
+                    Winner: {log.winner}
+                  </Text>
+                  <Text className="text-white text-lg">
+                    Reason: {log.reason}
+                  </Text>
+                  <Text className="text-white text-lg">
+                    Point Duration: {log.duration}s
+                  </Text>
+                  <Text className="text-white text-lg">
+                    Time point ended: {log.time.toLocaleTimeString()}
+                  </Text>
+                </View>
+              )
+          )}
+        </ScrollView>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

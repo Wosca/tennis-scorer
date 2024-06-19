@@ -1,45 +1,43 @@
 enum ServeWinReasons {
-  Ace,
-  OpponentHitsOut,
-  OpponentHitsNet,
-  OpponentDoubleFault,
-  OpponentFootFault,
+  Ace = "Ace",
+  OpponentHitsOut = "Opponent Hits Out",
+  OpponentHitsNet = "Opponent Hits Net",
+  OpponentDoubleFault = "Opponent Double Fault",
+  OpponentFootFault = "Opponent Foot Fault",
 }
 
 enum ServeLoseReasons {
-  DoubleFault,
-  ServeFault,
-  HittingOut,
-  HittingNet,
+  DoubleFault = "Double Fault",
+  ServeFault = "Serve Fault",
+  HittingOut = "Hitting Out",
+  HittingNet = "Hitting Net",
 }
 
 enum ReceiveWinReasons {
-  OpponentDoubleFault,
-  OpponentHitsOut,
-  OpponentHitsNet,
-  ServiceWinner,
-  ForehandWinner,
-  BackhandWinner,
-  Volley,
-  Smash,
-  Lob,
-  Dropshot,
+  OpponentDoubleFault = "Opponent Double Fault",
+  OpponentHitsOut = "Opponent Hits Out",
+  OpponentHitsNet = "Opponent Hits Net",
+  ServiceWinner = "Service Winner",
+  ForehandWinner = "Forehand Winner",
+  BackhandWinner = "Backhand Winner",
+  Volley = "Volley",
+  Smash = "Smash",
+  Lob = "Lob",
+  Dropshot = "Dropshot",
 }
 
 enum ReceiveLoseReasons {
-  HittingOut,
-  HittingNet,
+  HittingOut = "Hitting Out",
+  HittingNet = "Hitting Net",
 }
 
 type Player = "Player1" | "Player2";
 
 interface PointResult {
   winner: Player;
-  reason:
-    | ServeWinReasons
-    | ServeLoseReasons
-    | ReceiveWinReasons
-    | ReceiveLoseReasons;
+  reason: string;
+  time: Date;
+  duration: number;
 }
 
 interface MatchSettings {
@@ -115,7 +113,20 @@ class TennisMatch {
       | ReceiveWinReasons
       | ReceiveLoseReasons
   ): void {
-    this.scoreLog.push({ winner, reason });
+    const timeSinceLastPoint =
+      this.scoreLog.length > 0
+        ? Math.floor(
+            (new Date().getTime() -
+              this.scoreLog[this.scoreLog.length - 1].time.getTime()) /
+              1000
+          )
+        : 0;
+    this.scoreLog.push({
+      winner,
+      reason,
+      time: new Date(),
+      duration: timeSinceLastPoint,
+    });
     this.resetFaultCount();
 
     if (!this.inTiebreak) {
