@@ -133,7 +133,7 @@ export default function ModalPoint(props: {
         </View>
       )}
       {props.modalType.type === "Error" && (
-        <>
+        <View className="gap-2">
           <TouchableOpacity
             style={{
               width: "100%",
@@ -170,7 +170,7 @@ export default function ModalPoint(props: {
               Hit Net
             </Text>
           </TouchableOpacity>
-        </>
+        </View>
       )}
     </View>
   );

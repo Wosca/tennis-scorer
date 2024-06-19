@@ -6,6 +6,7 @@ module.exports = {
     "./app/match/**/*.{js,jsx,ts,tsx}",
     "./app/match/ongoing/**/*.{js,jsx,ts,tsx}",
     "./app/(tabs)/**/*.{js,jsx,ts,tsx}",
+    "./components/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
   theme: {

@@ -12,7 +12,7 @@ export default function GameOptions(props: {
 }) {
   return (
     <View
-      className="gap-2 p-2 w-3/4 items-center"
+      className="gap-2 p-2 items-center"
       style={{
         borderRadius: 5,
       }}

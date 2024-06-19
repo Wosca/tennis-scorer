@@ -102,6 +102,7 @@ export default function HomeScreen() {
             winByTwo={winByTwo}
             gamesPerSet={gamesPerSet}
           />
+
           <View
             className="gap-2 p-2 w-full items-center"
             style={{

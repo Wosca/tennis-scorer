@@ -64,6 +64,8 @@ export default function ItemDetail() {
       tieBreakWinByTwo: options.winByTwo === "true" ? true : false,
     })
   );
+  console.log(match.getScoreLog());
+
   const [formattedScore, setFormattedScore] = useState(
     match.getFormattedScore()
   );
@@ -112,7 +114,7 @@ export default function ItemDetail() {
             : "Ad. " + player2Name
           : formattedScore.gameScore}
       </Text>
-      <View className="w-screen flex flex-row justify-between">
+      <View className="w-screen flex flex-row justify-between bg-vista-blue/10 border-jordy-blue/20 py-2 border-2 rounded-md">
         <View className="items-center w-1/2 gap-2">
           <View className="flex flex-row items-center gap-2">
             <Text
@@ -226,6 +228,13 @@ export default function ItemDetail() {
             </TouchableWithoutFeedback>
           </Modal>
         </View>
+      </View>
+      <View className="w-screen flex flex-row justify-between bg-vista-blue/10 border-jordy-blue/20 py-2 border-2 rounded-md">
+        {match.getScoreLog().map((log, index) => (
+          <Text key={index} className="text-white">
+            {log.reason}
+          </Text>
+        ))}
       </View>
     </View>
   );
