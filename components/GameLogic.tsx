@@ -1,3 +1,4 @@
+import uuid from "react-native-uuid";
 enum ServeWinReasons {
   Ace = "Ace",
   OpponentHitsOut = "Opponent Hits Out",
@@ -38,6 +39,8 @@ interface PointResult {
   reason: string;
   time: Date;
   duration: number;
+  favourite: boolean;
+  id: string | number[];
 }
 
 interface MatchSettings {
@@ -126,6 +129,8 @@ class TennisMatch {
       reason,
       time: new Date(),
       duration: timeSinceLastPoint,
+      favourite: false,
+      id: uuid.v4(),
     });
     this.resetFaultCount();
 
@@ -205,7 +210,6 @@ class TennisMatch {
   private winGame(winner: Player) {
     this.score[winner]++;
     this.resetGameScore();
-    this.setScore[winner]++;
     this.switchServer();
     this.checkSetWin(winner);
   }
@@ -242,6 +246,50 @@ class TennisMatch {
     console.log(`${winner} wins the match!`);
   }
 
+  deletePoint(id: string | number[]): void {
+    // Find the index of the point with the given id
+    const pointIndex = this.scoreLog.findIndex((point) => point.id === id);
+
+    // If the point is not found, do nothing
+    if (pointIndex === -1) {
+      console.log(`Point with id ${id} not found.`);
+      return;
+    }
+
+    // Get the point to be deleted
+    const point = this.scoreLog[pointIndex];
+
+    // Remove the point from the scoreLog
+    this.scoreLog.splice(pointIndex, 1);
+
+    // Reset the scores
+    this.resetGameScore();
+    this.resetSetScore();
+    this.score = { Player1: 0, Player2: 0 };
+    this.currentSet = 1;
+    this.advantage = null;
+    this.inTiebreak = false;
+    this.currentServer = this.initialServer;
+
+    // Recalculate the scores from the remaining points in the log
+    this.scoreLog.forEach((point) => {
+      if (!this.inTiebreak) {
+        if (!this.matchSettings.shortDeuce && this.isDeuceScenario()) {
+          this.handleDeuce(point.winner);
+        } else {
+          this.gameScore[point.winner]++;
+          this.checkGameWin(point.winner);
+        }
+      } else {
+        this.gameScore[point.winner]++;
+        this.checkTiebreakWin(point.winner);
+      }
+    });
+
+    // Log the deletion
+    console.log(`Point with id ${id} has been deleted.`);
+  }
+
   getOpponent(player: Player): Player {
     return player === "Player1" ? "Player2" : "Player1";
   }
@@ -266,35 +314,48 @@ class TennisMatch {
     return [...this.scoreLog];
   }
 
-  private formatGameScore(playerScore: number, opponentScore: number): string {
-    const scoreMapping = ["0", "15", "30", "40"];
-    if (playerScore >= 3 && opponentScore >= 3) {
-      if (playerScore === opponentScore) {
-        return "Deuce";
-      } else if (this.advantage === "Player1") {
-        return "Advantage Player1";
-      } else if (this.advantage === "Player2") {
-        return "Advantage Player2";
-      }
+  favouritePoint(id: string | number[]): void {
+    const pointIndex = this.scoreLog.findIndex((point) => point.id === id);
+
+    if (pointIndex === -1) {
+      console.log(`Point with id ${id} not found.`);
+      return;
     }
-    return `${scoreMapping[playerScore]}-${scoreMapping[opponentScore]}`;
+
+    const point = this.scoreLog[pointIndex];
+
+    point.favourite = !point.favourite;
+
+    console.log(
+      `Point with id ${id} has been ${
+        point.favourite ? "favourited" : "unfavourited"
+      }.`
+    );
+  }
+
+  private formatGameScore(playerScore: number): number {
+    const scoreMapping = [0, 15, 30, 40];
+    if (playerScore > 3) return playerScore;
+    return scoreMapping[playerScore];
   }
 
   getFormattedScore(): {
     currentSetScore: { [key in Player]: number };
     totalSetScore: { [key in Player]: number };
-    gameScore: string;
+    gameScore: { Player1: number; Player2: number };
     advantage: Player | null;
     currentServer: Player;
     faultCount: { [key in Player]: number };
     inTieBreak: boolean;
   } {
     return {
-      currentSetScore: { ...this.setScore },
-      totalSetScore: { ...this.score },
-      gameScore: this.inTiebreak
-        ? `${this.gameScore.Player1}-${this.gameScore.Player2}`
-        : this.formatGameScore(this.gameScore.Player1, this.gameScore.Player2),
+      currentSetScore: { ...this.score },
+      totalSetScore: { ...this.setScore },
+      gameScore: {
+        Player1: this.formatGameScore(this.gameScore.Player1),
+        Player2: this.formatGameScore(this.gameScore.Player2),
+      },
+
       advantage: this.advantage,
       currentServer: this.currentServer,
       faultCount: { ...this.faultCount },
