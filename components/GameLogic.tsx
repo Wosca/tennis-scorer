@@ -76,6 +76,7 @@ class TennisMatch {
     Player2: 0,
   };
 
+  private matchConcluded: boolean = false;
   private matchSettings: MatchSettings;
   private currentSet: number = 1;
   private advantage: Player | null = null;
@@ -87,12 +88,17 @@ class TennisMatch {
     this.matchSettings = settings;
     this.initialServer = settings.firstServer === 1 ? "Player1" : "Player2";
     this.currentServer = this.initialServer;
+    this.matchConcluded = false;
   }
 
   private resetGameScore() {
     this.gameScore = { Player1: 0, Player2: 0 };
     this.advantage = null;
     this.resetFaultCount();
+  }
+
+  private resetScore() {
+    this.score = { Player1: 0, Player2: 0 };
   }
 
   private resetSetScore() {
@@ -215,17 +221,37 @@ class TennisMatch {
   }
 
   private checkSetWin(winner: Player) {
+    // Check if both players are at specified tie break game score
+    console.log("Checking set win");
     if (
-      this.setScore[winner] >= this.matchSettings.gamesPerSet &&
-      this.setScore[winner] >= this.setScore[this.getOpponent(winner)] + 2
-    ) {
-      this.winSet(winner);
-    } else if (
-      this.setScore[winner] === this.matchSettings.tieBreakAt &&
-      this.setScore[this.getOpponent(winner)] === this.matchSettings.tieBreakAt
+      this.score[winner] === this.matchSettings.tieBreakAt &&
+      this.score[this.getOpponent(winner)] === this.matchSettings.tieBreakAt
     ) {
       this.startTiebreak();
+      return;
     }
+    console.log(
+      this.score[winner],
+      this.score[this.getOpponent(winner)],
+      this.matchSettings.tieBreakAt,
+      this.matchSettings.gamesPerSet
+    );
+    if (
+      this.score[winner] >= this.matchSettings.gamesPerSet &&
+      this.score[winner] >= this.matchSettings.tieBreakAt + 1
+    ) {
+      console.log("Success");
+      this.winSet(winner);
+      return;
+    }
+
+    // if (
+    //   this.score[winner] >= this.matchSettings.gamesPerSet &&
+    //   this.score[winner] >= this.score[this.getOpponent(winner)] + 2
+    // ) {
+    //   console.log("3");
+    //   this.winSet(winner);
+    // }
   }
 
   private startTiebreak() {
@@ -238,11 +264,18 @@ class TennisMatch {
     if (this.currentSet > this.matchSettings.sets) {
       this.winMatch(winner);
     } else {
-      this.resetSetScore();
+      this.resetScore();
+      this.resetGameScore();
+      this.inTiebreak = false;
+      this.advantage = null;
+      this.setScore[winner]++;
+      this.currentServer =
+        this.initialServer === "Player1" ? "Player2" : "Player1";
     }
   }
 
   private winMatch(winner: Player) {
+    this.matchConcluded = true;
     console.log(`${winner} wins the match!`);
   }
 
@@ -300,6 +333,7 @@ class TennisMatch {
     matchScore: { [key in Player]: number };
     advantage: Player | null;
     currentServer: Player;
+    matchConcluded: boolean;
   } {
     return {
       gameScore: { ...this.gameScore },
@@ -307,6 +341,7 @@ class TennisMatch {
       matchScore: { ...this.score },
       advantage: this.advantage,
       currentServer: this.currentServer,
+      matchConcluded: this.matchConcluded,
     };
   }
 

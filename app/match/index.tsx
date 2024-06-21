@@ -26,7 +26,7 @@ export default function HomeScreen() {
     <ScrollView>
       <Stack.Screen
         options={{
-          title: "My home",
+          title: "New Match",
           headerStyle: { backgroundColor: "#0b1424" },
           headerTintColor: "#fff",
           headerTitleStyle: {

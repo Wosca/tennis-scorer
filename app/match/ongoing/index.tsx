@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Stack, router, useLocalSearchParams } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import {
   Text,
   View,
@@ -41,12 +41,6 @@ import ModalPoint from "@/components/PointModal";
 import moment from "moment";
 
 export default function ItemDetail() {
-  const initialMode = useRef<boolean>(true);
-
-  useEffect(() => {
-    initialMode.current = false;
-  }, []);
-
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState<ModalTypeInter>({
     type: "",
@@ -73,7 +67,6 @@ export default function ItemDetail() {
       tieBreakWinByTwo: options.winByTwo === "true" ? true : false,
     })
   );
-  console.log(match.getFormattedScore());
 
   const [formattedScore, setFormattedScore] = useState(
     match.getFormattedScore()
@@ -94,7 +87,20 @@ export default function ItemDetail() {
   ) => {
     match.logPoint(winner, reason);
     setFormattedScore(match.getFormattedScore());
-    const { currentServer } = match.getScore();
+    const { currentServer, matchConcluded } = match.getScore();
+    if (matchConcluded) {
+      router.push({
+        pathname: "/match/concluded",
+        params: {
+          player1Name: options.player1Name,
+          player2Name: options.player2Name,
+          player1Score: formattedScore.totalSetScore.Player1,
+          player2Score: formattedScore.totalSetScore.Player2,
+          setScore1: formattedScore.currentSetScore.Player1,
+          setScore2: formattedScore.currentSetScore.Player2,
+        },
+      });
+    }
     const server = serving === 1 ? "Player1" : "Player2";
     if (currentServer !== server) {
       setServing(currentServer === "Player1" ? 1 : 2);
@@ -104,6 +110,11 @@ export default function ItemDetail() {
   const handleFault = (player: Player) => {
     match.logFault(player);
     setFormattedScore(match.getFormattedScore());
+    const { currentServer } = match.getScore();
+    const server = serving === 1 ? "Player1" : "Player2";
+    if (currentServer !== server) {
+      setServing(currentServer === "Player1" ? 1 : 2);
+    }
   };
   const player1Name =
     (options.player1Name ?? "").length < 1 ? "Player 1" : options.player1Name;
@@ -112,6 +123,18 @@ export default function ItemDetail() {
 
   return (
     <ScrollView className="flex-1 bg-[#151718]">
+      <Stack.Screen
+        options={{
+          title: player1Name + " vs " + player2Name,
+          headerStyle: { backgroundColor: "#020408" },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+          headerBackVisible: false,
+          gestureEnabled: false,
+        }}
+      />
       <View className="w-[99vw] flex self-center flex-row justify-between bg-vista-blue/10 border-jordy-blue/20 py-2 border-2 rounded-md">
         <View className="items-center w-1/2 gap-2">
           <View className="flex flex-row items-center gap-2">
@@ -368,6 +391,18 @@ export default function ItemDetail() {
         <View className="items-center w-1/2 gap-2">
           <Text className="text-2xl text-white font-bold">
             Games: {formattedScore.currentSetScore.Player2}
+          </Text>
+        </View>
+      </View>
+      <View className="w-[99vw] mt-2 flex self-center flex-row justify-between bg-vista-blue/10 border-jordy-blue/20 py-2 border-2 rounded-md">
+        <View className="items-center w-1/2 gap-2">
+          <Text className="text-2xl text-white font-bold">
+            Sets: {formattedScore.totalSetScore.Player1}
+          </Text>
+        </View>
+        <View className="items-center w-1/2 gap-2">
+          <Text className="text-2xl text-white font-bold">
+            Sets: {formattedScore.totalSetScore.Player2}
           </Text>
         </View>
       </View>
