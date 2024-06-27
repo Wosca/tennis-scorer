@@ -1,50 +1,36 @@
-# Welcome to your Expo app 👋
+# Tennis Match Scorer
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Tennis Match Scorer is a mobile application built with React Native and Expo. The app is designed to help users easily score tennis matches. Please note that this application is still very much under development.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Match Scoring**: Keep track of scores for singles and doubles matches.
+- **Live Updates**: Real-time score updates and point history.
+- **User-Friendly Interface**: Easy-to-navigate interface for seamless scoring.
 
-   ```bash
-   npm install
-   ```
+## Installation
 
-2. Start the app
+To get started with the development version of Tennis Match Scorer, follow these steps:
 
-   ```bash
+1. **Clone the repository:**
+    ```sh
+    git clone https://github.com/Wosca/tennis-scorer.git
+    cd tennis-match-scorer
+    ```
+
+2. **Install dependencies:**
+    ```sh
+    npm install
+    ```
+
+3. **Start the Expo development server:**
+    ```sh
     npx expo start
-   ```
+    ```
 
-In the output, you'll find options to open the app in a
+## Contributing
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## App Stores!!
+I already have started a project on the Google Play Store but isn't in production yet. This is due to Google's amazing new requirements of 20 unique app testers to apply for production access. If you'd like to be one, please contact me! (It requires an email address.)
